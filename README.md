@@ -29,7 +29,9 @@
 ## 🔓 DLC 隐藏内容
 
 - 当上CTO / 创业成功 / 自由职业大神 / 数字游民
-- 购买地址：[爱发电](https://ifdian.net)
+- 购买地址：[爱发电 DLC结局包 ¥9.9](https://afdian.com/item/fa7f6696454111f1b00052540025c377)
+- 赞助支持：[请天才喝咖啡 ☕](https://afdian.com/item/2bcbdb1c454211f1a93f52540025c377)
+- 完整源码：[¥19.9 购买源码](https://afdian.com/item/6f664c68454211f1905352540025c377)
 
 ---
 

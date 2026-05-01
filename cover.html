@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大厂牛马模拟器 - 封面</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #0f0f0f;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+.cover {
+  width: 400px;
+  height: 700px;
+  background: linear-gradient(145deg, #1a1a2e 0%, #16213e 30%, #0f3460 60%, #1a1a2e 100%);
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(233,69,96,0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+/* 背景装饰网格 */
+.cover::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: 
+    linear-gradient(rgba(233,69,96,0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(233,69,96,0.1) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+/* 顶部紫色光晕 */
+.cover::after {
+  content: '';
+  position: absolute;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(83,52,131,0.4) 0%, transparent 70%);
+}
+/* Icon */
+.icon-container {
+  position: relative;
+  z-index: 1;
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, #e94560, #533483);
+  border-radius: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 50px;
+  margin-bottom: 30px;
+  box-shadow: 0 10px 30px rgba(233,69,96,0.3);
+  animation: glow 2s ease-in-out infinite;
+}
+@keyframes glow {
+  0%, 100% { box-shadow: 0 10px 30px rgba(233,69,96,0.3); }
+  50% { box-shadow: 0 10px 50px rgba(233,69,96,0.6); }
+}
+.title {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  margin-bottom: 10px;
+}
+.title h1 {
+  font-size: 36px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #e94560, #ff6b81, #e94560);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 4px;
+  line-height: 1.3;
+}
+.title .sub {
+  font-size: 13px;
+  color: #888;
+  letter-spacing: 6px;
+  margin-top: 8px;
+}
+.badge-row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 10px;
+  margin-top: 25px;
+}
+.badge {
+  padding: 6px 16px;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.badge.red { background: rgba(233,69,96,0.2); color: #e94560; border: 1px solid rgba(233,69,96,0.3); }
+.badge.purple { background: rgba(83,52,131,0.3); color: #b388ff; border: 1px solid rgba(83,52,131,0.4); }
+.badge.green { background: rgba(78,204,163,0.2); color: #4ecca3; border: 1px solid rgba(78,204,163,0.3); }
+
+.stats-row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 15px;
+  margin-top: 30px;
+}
+.stat-box {
+  background: rgba(15,52,96,0.6);
+  border: 1px solid rgba(83,52,131,0.3);
+  border-radius: 12px;
+  padding: 12px 18px;
+  text-align: center;
+  min-width: 70px;
+}
+.stat-box .num {
+  font-size: 20px;
+  font-weight: 700;
+  color: #e94560;
+}
+.stat-box .num.green { color: #4ecca3; }
+.stat-box .num.blue { color: #6c9bcb; }
+.stat-box .num.gold { color: #ffd700; }
+.stat-box .label {
+  font-size: 10px;
+  color: #666;
+  margin-top: 2px;
+}
+
+.tagline {
+  position: relative;
+  z-index: 1;
+  margin-top: 35px;
+  font-size: 14px;
+  color: rgba(255,255,255,0.5);
+  text-align: center;
+  line-height: 1.8;
+  padding: 0 40px;
+  letter-spacing: 1px;
+}
+
+.btn-start {
+  position: relative;
+  z-index: 1;
+  margin-top: 30px;
+  padding: 14px 60px;
+  background: linear-gradient(135deg, #e94560, #533483);
+  border: none;
+  border-radius: 30px;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 3px;
+  transition: all 0.3s;
+  box-shadow: 0 5px 20px rgba(233,69,96,0.3);
+}
+.btn-start:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(233,69,96,0.5);
+}
+
+.footer {
+  position: absolute;
+  bottom: 25px;
+  z-index: 1;
+  font-size: 11px;
+  color: #333;
+  letter-spacing: 2px;
+}
+</style>
+</head>
+<body>
+<div class="cover">
+  <div class="icon-container">🐂</div>
+  <div class="title">
+    <h1>大厂牛马<br>模拟器</h1>
+    <div class="sub">BIG FACTORY COW HORSE SIMULATOR</div>
+  </div>
+  <div class="badge-row">
+    <span class="badge red">文字冒险</span>
+    <span class="badge purple">10种结局</span>
+    <span class="badge green">免费开源</span>
+  </div>
+  <div class="stats-row">
+    <div class="stat-box"><div class="num">💰</div><div class="label">存款</div></div>
+    <div class="stat-box"><div class="num green">📊</div><div class="label">能力</div></div>
+    <div class="stat-box"><div class="num blue">😊</div><div class="label">心态</div></div>
+    <div class="stat-box"><div class="num gold">🤝</div><div class="label">人脉</div></div>
+  </div>
+  <div class="tagline">你的大厂命运<br>由你的选择决定</div>
+  <div class="btn-start">开始你的牛马生涯</div>
+  <div class="footer">v1.0 · POWERED BY CLAUDE CODE</div>
+</div>
+</body>
+</html>
