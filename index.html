@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="description" content="大厂牛马模拟器 - 一个关于打工人的文字冒险游戏。你在牛马科技有限公司的命运，由你的选择决定。">
+<meta property="og:title" content="大厂牛马模拟器">
+<meta property="og:description" content="你在牛马科技有限公司的命运，由你的选择决定。">
+<meta property="og:type" content="game">
+<title>大厂牛马模拟器</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: #0f0f0f;
+  color: #e0e0e0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#app {
+  width: 100%;
+  max-width: 480px;
+  min-height: 100vh;
+  background: #1a1a2e;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.header {
+  background: linear-gradient(135deg, #16213e, #0f3460);
+  padding: 16px 20px;
+  border-bottom: 1px solid #533483;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.header h1 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #e94560;
+  letter-spacing: 1px;
+}
+.header .badge {
+  background: #e94560;
+  color: white;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+.stats-bar {
+  background: #16213e;
+  padding: 12px 16px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #222;
+}
+.stat-item {
+  background: #0f3460;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  flex: 1;
+  min-width: 70px;
+  text-align: center;
+}
+.stat-item .label { color: #888; font-size: 10px; }
+.stat-item .value { color: #e94560; font-weight: 700; font-size: 16px; }
+.stat-item .value.green { color: #4ecca3; }
+.stat-item .value.gold { color: #ffd700; }
+.stat-item .value.blue { color: #6c9bcb; }
+
+#game-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  overflow-y: auto;
+  gap: 12px;
+}
+.story-text {
+  background: #16213e;
+  border-radius: 12px;
+  padding: 16px;
+  line-height: 1.8;
+  font-size: 15px;
+  color: #d0d0d0;
+  border-left: 3px solid #e94560;
+  animation: fadeIn 0.4s ease;
+}
+.story-text .highlight { color: #e94560; font-weight: 600; }
+.story-text .green-text { color: #4ecca3; }
+.story-text .gold-text { color: #ffd700; }
+.story-text .blue-text { color: #6c9bcb; }
+.story-text .gray-text { color: #666; font-size: 13px; margin-top: 8px; }
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+.choice-btn {
+  background: #0f3460;
+  border: 1px solid #533483;
+  color: #e0e0e0;
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  line-height: 1.5;
+}
+.choice-btn:hover { background: #533483; border-color: #e94560; transform: translateX(4px); }
+.choice-btn:active { transform: scale(0.98); }
+.choice-btn.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #1a1a2e;
+}
+.choice-btn.locked::after {
+  content: " 🔒 DLC";
+  color: #e94560;
+  font-size: 11px;
+}
+
+.event-animation {
+  text-align: center;
+  padding: 20px;
+  font-size: 36px;
+  animation: pulse 1.5s ease infinite;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+#result-screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 32px 20px;
+  text-align: center;
+  gap: 16px;
+}
+#result-screen h2 { font-size: 28px; color: #e94560; }
+#result-screen .ending-img { font-size: 64px; margin: 10px 0; }
+#result-screen .ending-desc { font-size: 15px; color: #aaa; line-height: 1.8; max-width: 380px; }
+#result-screen .stats-summary { background: #16213e; padding: 16px; border-radius: 12px; width: 100%; max-width: 380px; text-align: left; }
+#result-screen .stats-summary div { padding: 4px 0; display: flex; justify-content: space-between; }
+
+.btn-restart {
+  background: #e94560;
+  color: white;
+  border: none;
+  padding: 14px 40px;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 8px;
+}
+.btn-restart:hover { background: #ff6b81; transform: translateY(-2px); }
+
+.dlc-banner {
+  background: linear-gradient(135deg, #533483, #e94560);
+  padding: 12px 16px;
+  border-radius: 10px;
+  margin-top: 12px;
+  text-align: center;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.dlc-banner:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(233,69,96,0.3); }
+.dlc-banner a { color: white; text-decoration: none; }
+
+.loading { text-align: center; padding: 40px; color: #666; font-size: 14px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <h1>🐂 大厂牛马模拟器</h1>
+    <span class="badge">v1.0</span>
+  </div>
+  <div class="stats-bar" id="stats-bar">
+    <div class="stat-item"><div class="label">💰 存款</div><div class="value" id="stat-money">5,000</div></div>
+    <div class="stat-item"><div class="label">📊 能力</div><div class="value green" id="stat-skill">30</div></div>
+    <div class="stat-item"><div class="label">😊 心态</div><div class="value blue" id="stat-mood">60</div></div>
+    <div class="stat-item"><div class="label">🤝 人脉</div><div class="value gold" id="stat-network">20</div></div>
+  </div>
+  <div id="game-screen">
+    <div class="story-text" id="story-area">
+      <div style="text-align:center; padding:20px; color:#888;">
+        <div style="font-size:48px; margin-bottom:16px;">🏙️</div>
+        <div style="font-size:18px; color:#e94560; font-weight:700; margin-bottom:8px;">牛马科技有限公司</div>
+        <div style="font-size:13px; line-height:1.8;">
+          你，22岁，刚拿到这家互联网大厂的Offer。<br><br>
+          月薪8K，早9晚9，大小周。<br><br>
+          你的命运，由你的选择决定。
+        </div>
+        <button class="btn-restart" onclick="startGame()" style="margin-top:20px;">🎮 开始你的牛马生涯</button>
+      </div>
+    </div>
+  </div>
+  <div id="result-screen">
+    <div class="ending-img" id="ending-emoji">🎉</div>
+    <h2 id="ending-title">结局：普通打工人</h2>
+    <div class="ending-desc" id="ending-desc"></div>
+    <div class="stats-summary" id="ending-stats"></div>
+    <button class="btn-restart" onclick="restartGame()">🔄 再来一次</button>
+    <div class="dlc-banner">
+      <a href="https://ifdian.net/item/xxxx" target="_blank">🔓 解锁隐藏结局 DLC ¥9.9 → 当上CTO / 被AI替代 / 走上人生巅峰</a>
+    </div>
+  </div>
+</div>
+<script>
+// ====== 游戏数据 ======
+const EVENTS = [
+  // === 第一幕：入职 ===
+  {
+    id: 'enter',
+    text: '入职第一天，你被分到了「🐶 狗都不来事业部」。<br>工位在厕所旁边，电脑是2018年的古董机。<br><br>你的Leader「强哥」走过来，拍了拍你的肩膀：<br><span class="gray-text">"年轻人，好好干，明年给你涨薪8%。"</span>',
+    choices: [
+      { text: '😤 直接问涨薪的事情是不是画饼', effects: { mood: -10, skill: 5, network: -5 }, next: 'first-task' },
+      { text: '🙂 乖巧点头，先干再说了', effects: { mood: 0, skill: 10, network: 5 }, next: 'first-task' },
+      { text: '💡 加Leader微信，打听团队情况', effects: { mood: 5, network: 15, skill: 0 }, next: 'first-task', hint: '✓ 人脉+15' }
+    ]
+  },
+  {
+    id: 'first-task',
+    text: '强哥丢给你第一个需求：<br><br><span class="highlight">"三天之内把这个历史遗留系统重构了。"</span><br><br>你打开代码一看——屎山代码，没有注释，一个函数2000行。<br><br>你看了看日期，后天就是Deadline。',
+    choices: [
+      { text: '☕ 加班三天三夜，硬肝完', effects: { skill: 20, mood: -15, money: 0 }, next: 'review-meeting' },
+      { text: '🤖 用AI（Claude）帮忙改代码，偷偷摸鱼', effects: { skill: 15, mood: 5, network: 5 }, next: 'review-meeting' },
+      { text: '🙋 找强哥沟通，重新评估排期', effects: { skill: 5, network: 10, mood: 10 }, next: 'review-meeting' }
+    ]
+  },
+  {
+    id: 'review-meeting',
+    text: '代码评审会上，强哥看着你的代码，沉默了三秒钟。<br><br><span class="gray-text">"你这代码……写得还行，但架构设计不够优雅。"</span><br><br>然后他打开PPT，开始讲他十年前写的「经典架构」。<br><br>你发现他的PPT用了2007年的模版。',
+    choices: [
+      { text: '🎤 提出自己的架构方案，据理力争', effects: { skill: 15, network: -10, mood: -5 }, next: 'colleague-events' },
+      { text: '🤝 点头称是，下来按自己的方案改', effects: { skill: 10, network: 5, mood: 5 }, next: 'colleague-events' },
+      { text: '😴 表面听讲，实际上在想中午吃什么', effects: { skill: 0, network: 0, mood: 10 }, next: 'colleague-events' }
+    ]
+  },
+  // === 第二幕：职场日常 ===
+  {
+    id: 'colleague-events',
+    text: '你在公司待了一个月，发现了几个关键情报：<br><br>1️⃣ 隔壁组的老王，干了5年还是P6<br>2️⃣ 前台小姐姐在和CTO的秘书搞暧昧<br>3️⃣ 公司正在秘密推进「AI替代计划」<br><br>你还在厕所隔间听到——<span class="gray-text">"听说下个季度要裁20%。"</span>',
+    choices: [
+      { text: '📈 疯狂卷技能，争取不被裁', effects: { skill: 25, mood: -10, money: 0, network: 0 }, next: 'midterm' },
+      { text: '🤝 和老员工搞好关系，抱团取暖', effects: { network: 20, mood: 5, skill: 5 }, next: 'midterm' },
+      { text: '💰 接私活攒钱，随时准备跑路', effects: { money: 10000, skill: 5, mood: 0, network: -5 }, next: 'midterm' },
+      { text: '🛌 躺平摸鱼，准时下班', effects: { mood: 15, skill: 0, money: 0, network: 0 }, next: 'midterm' }
+    ]
+  },
+  {
+    id: 'midterm',
+    text: '半年考核来了。<br><br>绩效结果：<span class="highlight" id="perf-result">待定</span><br><br>强哥在1-on-1上对你说：<br><span class="gray-text">"你的产出……还行，但是主动性不够。这样下去年终奖可能只有0.5个月。"</span><br><br>你走出会议室，看到钉钉群里弹出消息：<br><span class="highlight">"【全员通知】公司引入AI编程助手，将提升30%开发效率。"</span>',
+    choices: [
+      { text: '📚 主动学习AI工具，成为团队里最懂AI的人', effects: { skill: 25, mood: -5, network: 5 }, next: 'ai-wave', hint: '🔥 关键节点' },
+      { text: '😰 焦虑，开始疯狂投简历', effects: { network: 10, mood: -15, skill: 0 }, next: 'ai-wave' },
+      { text: '🤷 无所谓，继续按自己的节奏干活', effects: { mood: 5, skill: 5, network: 0 }, next: 'ai-wave' }
+    ]
+  },
+  // === 第三幕：AI浪潮 ===
+  {
+    id: 'ai-wave',
+    text: '三个月后，公司全面推行AI化。<br><br>你发现：<br>✔️ 会用AI的人，一个人干三个人的活<br>❌ 不会用AI的人，开始出现在「优化名单」上<br><br>老王被裁了，走的时候背着那个用了5年的双肩包。<br><br>与此同时，公司群里在传：技术总监准备搞一个「AI牛马军团」——用AI Agent直接替代初级开发。',
+    choices: [
+      { text: '🚀 全力学习AI+开发技能，成为稀缺人才', effects: { skill: 30, mood: -5, money: 0 }, next: 'final-events' },
+      { text: '🤖 研究公司AI系统的漏洞，考虑用AI帮自己打工', effects: { skill: 20, mood: 5, money: 5000 }, next: 'final-events' },
+      { text: '🏃 辞职，用AI能力自己创业当个体户', effects: { skill: 10, mood: 10, money: 20000, network: -10 }, next: 'final-events' },
+      { text: '😌 相信公司不会裁我，毕竟我挺听话的', effects: { mood: 10, skill: 0, network: 0 }, next: 'final-events', hint: '⚠️ 风险选择' }
+    ]
+  },
+  // === 终幕 ===
+  {
+    id: 'final-events',
+    text: '2026年，AI全面崛起。<br><br>你所在的行业发生了天翻地覆的变化。<br><br>今天是年终述职的日子。<br><br>你坐在会议室里，投影仪上显示着你的年度数据。<br><br>强哥坐在对面，表情复杂。<br><br><span class="gray-text">"这是你在公司的最后一天，做完述职你就可以走了。"</span>',
+    choices: [
+      { text: '💪 展示你的AI技能和年度产出，证明自己的价值', effects: {}, next: 'ending-final' },
+      { text: '🤯 坦白你一直在用AI摸鱼，但效率其实很高', effects: {}, next: 'ending-final' },
+      { text: '🔓 解锁隐藏剧情（需要DLC）', effects: {}, next: 'dlc-locked', locked: true }
+    ]
+  },
+  {
+    id: 'ending-final',
+    text: '述职结束。<br><br>会议室里安静了10秒钟。<br><br>强哥站起来，把手伸向你……<br><br><span class="gold-text">你的命运即将揭晓。</span>',
+    choices: [
+      { text: '👉 查看你的结局', effects: {}, next: 'calculate-ending' }
+    ]
+  }
+];
+
+// ====== DLC 隐藏事件 ======
+const DLC_EVENTS = [
+  {
+    id: 'dlc-path-cto',
+    text: '🔓 [DLC解锁] CEO看到了你的述职报告，对你印象深刻。<br><br>他把你叫到办公室：<br><span class="gold-text">"年轻人，你是我见过最懂AI的开发。我决定——"</span><br><br>提拔你为AI技术副总裁！直接向CEO汇报！',
+    choices: [
+      { text: '🎉 接受任命，成为最年轻的CTO', effects: {}, next: 'ending-cto' },
+      { text: '😎 婉拒，拿期权自己创业', effects: {}, next: 'ending-founder' }
+    ]
+  },
+  {
+    id: 'dlc-path-fired',
+    text: '🔓 [DLC解锁] 你发现公司的AI系统已经能完全替代你的工作。<br><br>HR递给你一封信：<br><span class="highlight">"感谢你为公司做出的贡献，这是你的离职补偿包。"</span><br><br>补偿：N+1，共3个月工资。',
+    choices: [
+      { text: '💻 用补偿金+AI技能，做自由职业者', effects: {}, next: 'ending-freelancer' },
+      { text: '🌏 拿着钱出国旅居，做数字游民', effects: {}, next: 'ending-digital-nomad' }
+    ]
+  }
+];
+
+// ====== 结局系统 ======
+function getEnding(player) {
+  const { skill, mood, money, network } = player;
+  
+  if (player.dlcEnding) return player.dlcEnding;
+  
+  // 高技能路线
+  if (skill >= 100 && mood >= 40) {
+    return {
+      title: '🏆 技术大佬',
+      emoji: '👨‍💻',
+      desc: '你成为了公司最受尊敬的技术大牛。AI时代，你不仅没有被淘汰，反而利用AI创造了巨大价值。强哥退休前推荐你接替了他的位置。<br><br>年薪：80万<br>状态：业界知名技术专家<br>金句：<span class="gold-text">"与其被AI替代，不如让AI替我打工。"</span>',
+    };
+  }
+  if (skill >= 80 && money >= 20000) {
+    return {
+      title: '💰 财富自由跑路',
+      emoji: '🤑',
+      desc: '你积累了足够的技能和资金，在AI浪潮来临前及时抽身。现在你在云南大理开了个民宿，偶尔接点技术咨询的活。<br><br>存款：' + money.toLocaleString() + '元<br>状态：半退休生活<br>金句：<span class="gold-text">"大厂？不过是牛马们的一场集体幻觉。"</span>',
+    };
+  }
+  if (network >= 50 && skill >= 50) {
+    return {
+      title: '🤝 人脉王转型',
+      emoji: '🦁',
+      desc: '你的好人缘在关键时刻救了你的命。老同事拉你一起创业，做AI培训赛道。公司一年后估值2000万。<br><br>职位：联合创始人<br>状态：融资A轮进行中<br>金句：<span class="gold-text">"在大厂最值钱的东西，不是工资，是人脉。"</span>',
+    };
+  }
+  if (mood >= 80) {
+    return {
+      title: '😌 心态大师',
+      emoji: '🧘',
+      desc: '你始终保持好心态，不卷不焦虑。当别人都在焦虑AI替代时，你每天准点下班，周末双休。最后公司裁员，你拿了赔偿金开了一家咖啡馆。<br><br>状态：咖啡馆老板<br>名言：<span class="gold-text">"人生不是只有大厂，也不是只有奋斗。"</span>',
+    };
+  }
+  if (skill <= 30 && money <= 5000) {
+    return {
+      title: '😢 被AI替代',
+      emoji: '🤖',
+      desc: '你没能在AI浪潮中跟上节奏。公司引入AI系统后，你的岗位被优化掉了。面试了20家公司，都说"需要更懂AI的人"。<br><br>状态：待业中，正在送外卖<br>存款：快见底了<br>教训：<span class="gray-text">时代抛弃你的时候，连一声招呼都不会打。</span>',
+    };
+  }
+  // 默认结局
+  return {
+    title: '🎭 普通打工人',
+    emoji: '🐂',
+    desc: '你在大厂里普普通通地活着，没被裁也没升职。AI来了，你学会了用Cursor写代码，效率还行。公司没裁你，也没给你涨薪。<br><br>年薪：15万<br>状态：资深牛马<br>人生感悟：<span class="gray-text">"牛马的一生，平淡是真。"</span>',
+  };
+}
+
+// ====== 游戏逻辑 ======
+let player = {
+  money: 5000,
+  skill: 30,
+  mood: 60,
+  network: 20,
+  day: 1,
+  dlcEnding: null,
+  path: []
+};
+
+let currentEventId = null;
+let gameStarted = false;
+
+function startGame() {
+  gameStarted = true;
+  player = { money: 5000, skill: 30, mood: 60, network: 20, day: 1, dlcEnding: null, path: [] };
+  document.getElementById('result-screen').style.display = 'none';
+  document.getElementById('game-screen').style.display = 'flex';
+  showEvent('enter');
+}
+
+function restartGame() {
+  startGame();
+}
+
+function showEvent(eventId) {
+  currentEventId = eventId;
+  
+  // 检查是否是DLC事件
+  if (eventId === 'ending-cto' || eventId === 'ending-founder' || 
+      eventId === 'ending-freelancer' || eventId === 'ending-digital-nomad') {
+    let dlcEnding = {};
+    if (eventId === 'ending-cto') {
+      dlcEnding = { title: '👑 CTO之路', emoji: '👨‍💼', desc: '你成为公司最年轻的CTO，带领团队全面拥抱AI。公司市值翻了三倍。你登上了《福布斯》30 Under 30。<br><br>年薪：200万+期权<br>状态：人生赢家<br>金句：<span class="gold-text">"有时候，选择比努力更重要。"</span>' };
+    } else if (eventId === 'ending-founder') {
+      dlcEnding = { title: '🚀 创业成功', emoji: '🦄', desc: '你拿着期权和技术积累，自己创办了一家AI公司。三年后公司被收购，你实现了财务自由。<br><br>身价：5000万<br>状态：天使投资人<br>金句：<span class="gold-text">"不要打工，要打江山。"</span>' };
+    } else if (eventId === 'ending-freelancer') {
+      dlcEnding = { title: '💻 自由职业大神', emoji: '🌟', desc: '你成为了一名顶级自由职业者，靠AI技能接海外远程项目。月入5万美金，在家工作。<br><br>月收入：$50,000<br>状态：数字游民<br>金句：<span class="gold-text">"去掉中间的老板，你的收入能翻10倍。"</span>' };
+    } else {
+      dlcEnding = { title: '🌏 数字游民', emoji: '🏝️', desc: '你拿着补偿金环游世界，在巴厘岛、清迈、里斯本之间穿梭。远程做点AI咨询，够花就行。<br><br>状态：全世界都是你的办公室<br>金句：<span class="gold-text">"人生苦短，我用Python和美金。"</span>' };
+    }
+    player.dlcEnding = dlcEnding;
+    showResult();
+    return;
+  }
+  
+  if (eventId === 'dlc-locked') {
+    document.getElementById('story-area').innerHTML = `
+      <div style="text-align:center; padding:16px;">
+        <div style="font-size:40px; margin-bottom:12px;">🔒</div>
+        <div style="font-size:16px; color:#e94560; font-weight:600; margin-bottom:8px;">需要解锁DLC才能继续</div>
+        <div style="font-size:13px; color:#888; line-height:1.8;">
+          隐藏结局包含：<br>
+          🏆 当上CTO<br>
+          🚀 创业成功<br>
+          💻 自由职业大神<br>
+          🌏 数字游民
+        </div>
+        <div class="dlc-banner" style="margin-top:16px;">
+          <a href="https://ifdian.net" target="_blank">🔓 购买DLC ¥9.9 →</a>
+        </div>
+        <button class="btn-restart" onclick="calculateEnding()" style="margin-top:12px; background:#533483;">或者看免费结局</button>
+      </div>
+    `;
+    return;
+  }
+
+  if (eventId === 'calculate-ending') {
+    calculateEnding();
+    return;
+  }
+  
+  // 查找事件
+  let event = EVENTS.find(e => e.id === eventId);
+  if (!event) {
+    calculateEnding();
+    return;
+  }
+  
+  // 绘制事件
+  player.day += Math.floor(Math.random() * 3) + 1;
+  updateStats();
+  
+  let choicesHtml = event.choices.map((choice, i) => {
+    let cls = choice.locked ? 'choice-btn locked' : 'choice-btn';
+    let extra = choice.hint ? `\n<span style="font-size:11px;color:#888;">${choice.hint}</span>` : '';
+    return `<button class="${cls}" onclick="makeChoice(${i})" ${choice.locked ? 'disabled' : ''}>${choice.text}${extra}</button>`;
+  }).join('');
+  
+  document.getElementById('story-area').innerHTML = `
+    <div class="story-text">${event.text}</div>
+    <div class="choices">${choicesHtml}</div>
+  `;
+  
+  // 滚动到底部
+  document.getElementById('game-screen').scrollTop = document.getElementById('game-screen').scrollHeight;
+}
+
+function makeChoice(choiceIndex) {
+  let event = EVENTS.find(e => e.id === currentEventId);
+  if (!event) return;
+  
+  const choice = event.choices[choiceIndex];
+  if (choice.locked) return;
+  
+  // 应用效果
+  if (choice.effects) {
+    if (choice.effects.money) player.money += choice.effects.money;
+    if (choice.effects.skill) player.skill += choice.effects.skill;
+    if (choice.effects.mood) player.mood += choice.effects.mood;
+    if (choice.effects.network) player.network += choice.effects.network;
+    
+    // 确保数值不越界
+    player.skill = Math.max(0, Math.min(200, player.skill));
+    player.mood = Math.max(0, Math.min(100, player.mood));
+    player.network = Math.max(0, Math.min(100, player.network));
+    player.money = Math.max(0, player.money);
+  }
+  
+  player.path.push({ event: currentEventId, choice: choiceIndex });
+  updateStats();
+  
+  showEvent(choice.next);
+}
+
+function calculateEnding() {
+  // 最终结局判断（无DLC）
+  const ending = getEnding(player);
+  
+  document.getElementById('story-area').innerHTML = `
+    <div style="text-align:center; padding:16px;">
+      <div style="font-size:48px; margin-bottom:12px;">${ending.emoji}</div>
+      <div style="font-size:22px; color:#e94560; font-weight:700; margin-bottom:8px;">${ending.title}</div>
+      <div style="font-size:14px; color:#aaa; line-height:1.8; max-width:380px; margin:0 auto;">${ending.desc}</div>
+      <div class="stats-summary" style="background:#16213e; padding:16px; border-radius:12px; margin-top:16px; text-align:left;">
+        <div>💰 存款：<span style="color:#e94560;">${player.money.toLocaleString()}元</span></div>
+        <div>📊 能力值：<span style="color:#4ecca3;">${player.skill}</span></div>
+        <div>😊 心态值：<span style="color:#6c9bcb;">${player.mood}</span></div>
+        <div>🤝 人脉值：<span style="color:#ffd700;">${player.network}</span></div>
+        <div>📅 游戏天数：${player.day}天</div>
+      </div>
+      <button class="btn-restart" onclick="restartGame()" style="margin-top:16px;">🔄 再来一次</button>
+      <div class="dlc-banner">
+        <a href="https://ifdian.net" target="_blank">🔓 解锁DLC结局 ¥9.9 → 当上CTO / 创业成功 / 自由职业</a>
+      </div>
+    </div>
+  `;
+}
+
+function showResult() {
+  document.getElementById('game-screen').style.display = 'none';
+  document.getElementById('result-screen').style.display = 'flex';
+  
+  const ending = player.dlcEnding || getEnding(player);
+  
+  document.getElementById('ending-emoji').textContent = ending.emoji || '🎉';
+  document.getElementById('ending-title').textContent = ending.title || '结局';
+  document.getElementById('ending-desc').innerHTML = ending.desc || '';
+  document.getElementById('ending-stats').innerHTML = `
+    <div>💰 存款：<span style="color:#e94560;">${player.money.toLocaleString()}元</span></div>
+    <div>📊 能力值：<span style="color:#4ecca3;">${player.skill}</span></div>
+    <div>😊 心态值：<span style="color:#6c9bcb;">${player.mood}</span></div>
+    <div>🤝 人脉值：<span style="color:#ffd700;">${player.network}</span></div>
+    <div>📅 游戏天数：${player.day}天</div>
+  `;
+}
+
+function updateStats() {
+  document.getElementById('stat-money').textContent = player.money.toLocaleString();
+  document.getElementById('stat-skill').textContent = player.skill;
+  document.getElementById('stat-mood').textContent = player.mood;
+  document.getElementById('stat-network').textContent = player.network;
+}
+</script>
+</body>
+</html>
