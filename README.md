@@ -50,6 +50,12 @@
 
 ---
 
+## 🎮 同系列作品
+
+- [⚔️ Prompt战神](https://github.com/lzhao8956-glitch/prompt-warrior) — AI时代的文字竞技场，用Prompt决胜负！
+
+---
+
 ## 📜 开源协议
 
 MIT License
