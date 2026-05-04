@@ -181,13 +181,27 @@ body {
 .dlc-banner a { color: white; text-decoration: none; }
 
 .loading { text-align: center; padding: 40px; color: #666; font-size: 14px; }
+
+.rank-btn{background:#0f3460;border:1px solid #533483;color:#e0e0e0;padding:14px 16px;border-radius:10px;font-size:14px;cursor:pointer;text-align:center;margin-top:8px;transition:all .2s}
+.rank-btn:hover{background:#533483;border-color:#e94560}
+.rank-list{background:#16213e;border-radius:12px;padding:16px;margin-top:8px;font-size:13px}
+.rank-item{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #222}
+.rank-item:last-child{border-bottom:none}
+.rank-pos{color:#e94560;font-weight:700;min-width:30px}
+.rank-score{color:#4ecca3}
+.moyu-bar{background:#1a1a2e;padding:8px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #222;font-size:12px}
+.moyu-label{color:#888}
+.moyu-fill{flex:1;height:8px;background:#2a2a4a;border-radius:4px;overflow:hidden}
+.moyu-fill-inner{height:100%;background:linear-gradient(90deg,#4ecca3,#e94560);border-radius:4px;transition:width .5s}
+.moyu-val{color:#e94560;min-width:30px;text-align:right}
+
 </style>
 </head>
 <body>
 <div id="app">
   <div class="header">
     <h1>🐂 大厂牛马模拟器</h1>
-    <span class="badge">v1.0</span>
+    <span class="badge">v2.0</span>
   </div>
   <div class="stats-bar" id="stats-bar">
     <div class="stat-item"><div class="label">💰 存款</div><div class="value" id="stat-money">5,000</div></div>
@@ -195,6 +209,7 @@ body {
     <div class="stat-item"><div class="label">😊 心态</div><div class="value blue" id="stat-mood">60</div></div>
     <div class="stat-item"><div class="label">🤝 人脉</div><div class="value gold" id="stat-network">20</div></div>
   </div>
+<div class="moyu-bar"><span class="moyu-label">🐟 摸鱼指数</span><div class="moyu-fill"><div class="moyu-fill-inner" id="moyu-fill" style="width:30%"></div></div><span class="moyu-val" id="moyu-val">30%</span></div>
   <div id="game-screen">
     <div class="story-text" id="story-area">
       <div style="text-align:center; padding:20px; color:#888;">
@@ -206,6 +221,7 @@ body {
           你的命运，由你的选择决定。
         </div>
         <button class="btn-restart" onclick="startGame()" style="margin-top:20px;">🎮 开始你的牛马生涯</button>
+        <button class="btn-restart" onclick="showRanking()" style="margin-top:10px;background:#533483;">🏆 排行榜</button>
       </div>
     </div>
   </div>
@@ -214,7 +230,8 @@ body {
     <h2 id="ending-title">结局：普通打工人</h2>
     <div class="ending-desc" id="ending-desc"></div>
     <div class="stats-summary" id="ending-stats"></div>
-    <button class="btn-restart" onclick="restartGame()">🔄 再来一次</button>
+    <button class="btn-restart" onclick="restartGame()" style="margin-top:12px;">🔄 再来一次</button>
+    <button class="btn-restart" onclick="showRanking()" style="margin-top:8px;background:#533483;">🏆 排行榜</button>
     <div class="dlc-banner">
       <a href="https://afdian.com/item/fa7f6696454111f1b00052540025c377" target="_blank">🔓 解锁隐藏结局 DLC ¥9.9 → 当上CTO / 创业成功 / 自由职业大神</a>
     </div>
@@ -259,7 +276,8 @@ const EVENTS = [
       { text: '📈 疯狂卷技能，争取不被裁', effects: { skill: 25, mood: -10, money: 0, network: 0 }, next: 'midterm' },
       { text: '🤝 和老员工搞好关系，抱团取暖', effects: { network: 20, mood: 5, skill: 5 }, next: 'midterm' },
       { text: '💰 接私活攒钱，随时准备跑路', effects: { money: 10000, skill: 5, mood: 0, network: -5 }, next: 'midterm' },
-      { text: '🛌 躺平摸鱼，准时下班', effects: { mood: 15, skill: 0, money: 0, network: 0 }, next: 'midterm' }
+      { text: '🛌 躺平摸鱼，准时下班', effects: { mood: 15, skill: 0, money: 0, network: 0 }, next: 'midterm' },
+      { text: '🚀 准备跳槽，找更好的机会', effects: { money: 10000, skill: 5, mood: 5, network: 10, jumpCount:1 }, next: 'jump-company' }
     ]
   },
   {
@@ -301,6 +319,34 @@ const EVENTS = [
   }
 ];
 
+  // === V2 新事件：跳槽路线 ===
+  {
+    id: 'jump-company',
+    text: '你在职了一年，积累了足够的经验和人脉。<br><br>猎头给你打电话：<span class="highlight">"某大厂在招人，薪资可以谈到30K。"</span><br><br>你心动了。',
+    choices: [
+      { text: '🚀 跳槽！去新公司涨薪50%', effects: { money: 20000, skill: 10, mood: 10, network: 5, jumpCount:1 }, next: 'new-company-1' },
+      { text: '🤔 再等等，目前公司还能苟', effects: { mood: 5, skill: 5, money: 5000 }, next: 'final-events' },
+      { text: '📝 骑驴找马，投简历试试水', effects: { network: 10, skill: 5, mood: 0 }, next: 'new-company-1' }
+    ]
+  },
+  {
+    id: 'new-company-1',
+    text: '你入职了新公司——"卷王科技"。<br><br>这里比上一家更卷：<br>⏰ 早10晚11，大小周<br>💰 月薪30K，但时薪算下来还不如上一家<br>🏢 全员内卷<br><br>Leader第一天就说：<span class="gray-text">"我们团队不接受摸鱼的人。"</span>',
+    choices: [
+      { text: '🔥 卷！用AI工具卷死他们', effects: { skill: 25, mood: -15, moyu: -10 }, next: 'jump-or-stay' },
+      { text: '😎 表面卷，实际偷偷摸鱼', effects: { moyu: 15, skill: 5, mood: 5, network: 5 }, next: 'jump-or-stay' },
+      { text: '💼 继续投简历，下一家更好', effects: { money: 5000, mood: -5, network: 10, jumpCount:1 }, next: 'jump-or-stay' }
+    ]
+  },
+  {
+    id: 'jump-or-stay',
+    text: '你在卷王科技干了半年。<br><br>你的摸鱼指数：<span class="highlight"></span><br><br>老板终于发现了你的真实工作状态……',
+    choices: [
+      { text: '🏃 再次跳槽——这次去外企', effects: { money: 30000, skill: 5, mood: 10, company: 1, jumpCount:2 }, next: 'final-events' },
+      { text: '💪 痛改前非，全力工作', effects: { skill: 20, mood: -10, moyu: -20 }, next: 'final-events' },
+      { text: '🤯 自己创业，自由职业', effects: { money: 10000, skill: 10, mood: 15, moyu: -5 }, next: 'final-events' }
+    ]
+  },
 // ====== DLC 隐藏事件 ======
 const DLC_EVENTS = [
   {
@@ -322,10 +368,59 @@ const DLC_EVENTS = [
 ];
 
 // ====== 结局系统 ======
+
+// ====== V2 新功能：排行榜系统 ======
+function saveRank(endingTitle, player) {
+  try {
+    var ranks = JSON.parse(localStorage.getItem('daniu-rank') || '[]');
+    var score = player.skill * 2 + player.money / 1000 + player.network * 3 + player.mood * 2;
+    ranks.push({date: new Date().toLocaleDateString('zh-CN'), ending: endingTitle, score: Math.round(score), skill: player.skill, money: player.money, days: player.day});
+    ranks.sort(function(a,b){return b.score - a.score});
+    if(ranks.length > 20) ranks = ranks.slice(0,20);
+    localStorage.setItem('daniu-rank', JSON.stringify(ranks));
+  } catch(e) {}
+}
+
+function showRanking() {
+  try {
+    var ranks = JSON.parse(localStorage.getItem('daniu-rank') || '[]');
+    var html = '<div class="rank-list"><div style="text-align:center;color:#e94560;font-weight:700;margin-bottom:10px;">🏆 排行榜 Top 20</div>';
+    if(ranks.length === 0) {
+      html += '<div style="text-align:center;color:#666;padding:20px;">还没有记录，快来成为第一个牛马传说！</div>';
+    } else {
+      for(var i=0; i<ranks.length; i++) {
+        var r = ranks[i];
+        var medal = i===0 ? '🥇' : i===1 ? '🥈' : i===2 ? '🥉' : (i+1)+'.';
+        html += '<div class="rank-item"><span class="rank-pos">'+medal+'</span><span>'+r.ending+'</span><span class="rank-score">'+r.score+'分</span></div>';
+      }
+    }
+    html += '<button class="rank-btn" onclick="clearRank()">🗑️ 清空排行榜</button></div>';
+    document.getElementById('story-area').innerHTML = html;
+    document.getElementById('game-screen').scrollTop = 0;
+  } catch(e) {}
+}
+
+function clearRank() {
+  if(confirm('确定清空排行榜吗？')) {
+    localStorage.removeItem('daniu-rank');
+    showRanking();
+  }
+}
+
 function getEnding(player) {
   const { skill, mood, money, network } = player;
   
   if (player.dlcEnding) return player.dlcEnding;
+  // V2 新结局
+  if (player.jumpCount >= 2) {
+    return { title: '🏃 跳槽达人', emoji: '💼', desc: '你成了职场跳槽高手，每一年换一家公司，薪资翻了三倍。虽然不稳定，但你积累了广泛的人脉和技能。<br><br>年薪：60万<br>状态：职场老油条<br>金句：<span class="gold-text">"在一家公司待满3年就是失败。"</span>' };
+  }
+  if ((player.moyu||30) >= 80) {
+    return { title: '🐟 摸鱼大师', emoji: '🐱', desc: '你的摸鱼境界已经出神入化。用AI自动完成80%的工作，每天实际工作时间不到2小时。公司竟然没有发现。<br><br>状态：企业级摸鱼艺术家<br>金句：<span class="gold-text">"真正的摸鱼，是让老板觉得你在努力工作。"</span>' };
+  }
+  if ((player.moyu||30) <= 5 && player.skill >= 80) {
+    return { title: '🔥 卷王之王', emoji: '💀', desc: '你卷到了极致。连续365天加班到凌晨，周末也在公司。你的发际线后退了5厘米，但你成了VP。<br><br>年薪：120万<br>医疗费：50万<br>忠告：<span class="gray-text">"命比钱重要。"</span>' };
+  }
   
   // 高技能路线
   if (skill >= 100 && mood >= 40) {
@@ -372,7 +467,7 @@ function getEnding(player) {
 }
 
 // ====== 游戏逻辑 ======
-let player = {
+let player = { moyu:30, company:0, jumpCount:0, rankScore:0,
   money: 5000,
   skill: 30,
   mood: 60,
@@ -387,7 +482,7 @@ let gameStarted = false;
 
 function startGame() {
   gameStarted = true;
-  player = { money: 5000, skill: 30, mood: 60, network: 20, day: 1, dlcEnding: null, path: [] };
+  player = { money: 5000, skill: 30, mood: 60, network: 20, day: 1, dlcEnding: null, path: [], moyu:30, company:0, jumpCount:0, rankScore:0 };
   document.getElementById('result-screen').style.display = 'none';
   document.getElementById('game-screen').style.display = 'flex';
   showEvent('enter');
@@ -483,6 +578,9 @@ function makeChoice(choiceIndex) {
     if (choice.effects.skill) player.skill += choice.effects.skill;
     if (choice.effects.mood) player.mood += choice.effects.mood;
     if (choice.effects.network) player.network += choice.effects.network;
+    if (choice.effects.moyu) (player.moyu||(player.moyu=0)),player.moyu+=choice.effects.moyu;
+    if (choice.effects.company) (player.company||(player.company=0)),player.company+=choice.effects.company;
+    if (choice.effects.jumpCount) (player.jumpCount||(player.jumpCount=0)),player.jumpCount+=choice.effects.jumpCount;
     
     // 确保数值不越界
     player.skill = Math.max(0, Math.min(200, player.skill));
@@ -500,7 +598,7 @@ function makeChoice(choiceIndex) {
 function calculateEnding() {
   // 最终结局判断（无DLC）
   const ending = getEnding(player);
-  
+  saveRank(ending.title, player);
   document.getElementById('story-area').innerHTML = `
     <div style="text-align:center; padding:16px;">
       <div style="font-size:48px; margin-bottom:12px;">${ending.emoji}</div>
@@ -526,7 +624,7 @@ function showResult() {
   document.getElementById('result-screen').style.display = 'flex';
   
   const ending = player.dlcEnding || getEnding(player);
-  
+  saveRank(ending.title, player);
   document.getElementById('ending-emoji').textContent = ending.emoji || '🎉';
   document.getElementById('ending-title').textContent = ending.title || '结局';
   document.getElementById('ending-desc').innerHTML = ending.desc || '';
@@ -544,6 +642,9 @@ function updateStats() {
   document.getElementById('stat-skill').textContent = player.skill;
   document.getElementById('stat-mood').textContent = player.mood;
   document.getElementById('stat-network').textContent = player.network;
+  var mf=Math.min(100,Math.max(0,player.moyu||30));
+  document.getElementById('moyu-fill').style.width=mf+'%';
+  document.getElementById('moyu-val').textContent=mf+'%';
 }
 </script>
 </body>
